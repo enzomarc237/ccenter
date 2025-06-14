@@ -4,8 +4,10 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
+import 'package:provider/provider.dart';
+import 'features/command_center/providers/command_center_provider.dart';
+import 'features/command_center/views/command_center_view.dart';
+import 'features/command_center/data/default_commands.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,12 +46,18 @@ class CCenterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MacosApp(
-      title: 'CCenter',
-      theme: MacosThemeData.light(),
-      darkTheme: MacosThemeData.dark(),
-      themeMode: ThemeMode.system,
-      home: const CCenterHomePage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CommandCenterProvider()),
+      ],
+      child: MacosApp(
+        title: 'CCenter',
+        theme: MacosThemeData.light(),
+        darkTheme: MacosThemeData.dark(),
+        themeMode: ThemeMode.system,
+        home: const CCenterHomePage(),
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }
@@ -68,6 +76,7 @@ class _CCenterHomePageState extends State<CCenterHomePage> {
   void initState() {
     super.initState();
     _initSystemTray();
+    _initCommands();
   }
 
   Future<void> _initSystemTray() async {
@@ -96,6 +105,13 @@ class _CCenterHomePageState extends State<CCenterHomePage> {
     ]);
 
     await _systemTray.setContextMenu(menu);
+  }
+
+  void _initCommands() {
+    final provider = Provider.of<CommandCenterProvider>(context, listen: false);
+    for (final command in DefaultCommands.getCommands()) {
+      provider.registerCommand(command);
+    }
   }
 
   @override
@@ -129,7 +145,7 @@ class _CCenterHomePageState extends State<CCenterHomePage> {
         children: [
           ContentArea(
             builder: (context, scrollController) {
-              return const Center(child: Text('Welcome to CCenter'));
+              return const CommandCenterView();
             },
           ),
         ],
