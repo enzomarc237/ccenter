@@ -9,12 +9,9 @@ class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final typography = MacosTypography.of(context);
-    
+
     return MacosScaffold(
-      toolBar: const ToolBar(
-        title: Text('Settings'),
-        titleWidth: 150.0,
-      ),
+      toolBar: const ToolBar(title: Text('Settings'), titleWidth: 150.0),
       children: [
         ContentArea(
           builder: (context, scrollController) {
@@ -25,10 +22,7 @@ class SettingsView extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   children: [
                     MacosListTile(
-                      title: Text(
-                        'General',
-                        style: typography.title2,
-                      ),
+                      title: Text('General', style: typography.title2),
                     ),
                     const SizedBox(height: 8),
                     PushButton(
@@ -36,7 +30,9 @@ class SettingsView extends StatelessWidget {
                       secondary: true,
                       child: Text('Start at login'),
                       onPressed: () {
-                        settingsProvider.updateStartAtLogin(!settings.startAtLogin);
+                        settingsProvider.updateStartAtLogin(
+                          !settings.startAtLogin,
+                        );
                       },
                     ),
                     const SizedBox(height: 8),
@@ -45,14 +41,13 @@ class SettingsView extends StatelessWidget {
                       secondary: true,
                       child: Text('Minimize to system tray'),
                       onPressed: () {
-                        settingsProvider.updateMinimizeToTray(!settings.minimizeToTray);
+                        settingsProvider.updateMinimizeToTray(
+                          !settings.minimizeToTray,
+                        );
                       },
                     ),
                     MacosListTile(
-                      title: Text(
-                        'Appearance',
-                        style: typography.title2,
-                      ),
+                      title: Text('Appearance', style: typography.title2),
                     ),
                     const SizedBox(height: 8),
                     PushButton(
@@ -64,17 +59,16 @@ class SettingsView extends StatelessWidget {
                       },
                     ),
                     MacosListTile(
-                      title: Text(
-                        'API Settings',
-                        style: typography.title2,
-                      ),
+                      title: Text('API Settings', style: typography.title2),
                     ),
                     const SizedBox(height: 8),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: MacosTextField(
                         placeholder: 'Enter Gemini API Key',
-                        controller: TextEditingController(text: settings.geminiApiKey),
+                        controller: TextEditingController(
+                          text: settings.geminiApiKey,
+                        ),
                         onSubmitted: (value) {
                           settingsProvider.updateGeminiApiKey(value);
                         },
@@ -91,7 +85,9 @@ class SettingsView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: MacosTextField(
                         placeholder: 'Command + L',
-                        controller: TextEditingController(text: settings.hotkeyCommand),
+                        controller: TextEditingController(
+                          text: settings.hotkeyCommand,
+                        ),
                         onSubmitted: (value) {
                           settingsProvider.updateHotkeyCommand(value);
                         },
