@@ -1,14 +1,21 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
+
+import 'features/content_capture/providers/content_provider.dart';
+import 'features/content_capture/views/content_capture_view.dart';
+import 'features/settings/providers/settings_provider.dart';
+import 'features/settings/views/settings_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize window utils
+  await WindowManipulator.initialize();
 
   // Initialize window manager
   await windowManager.ensureInitialized();
@@ -22,6 +29,11 @@ void main() async {
     skipTaskbar: false,
     titleBarStyle: TitleBarStyle.hidden,
   );
+
+  // Configure window effects
+  await WindowManipulator.setWindowBackgroundColorToClear();
+  await WindowManipulator.setMaterial(NSVisualEffectViewMaterial.hudWindow);
+
   await windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.show();
     await windowManager.focus();
@@ -36,7 +48,15 @@ void main() async {
     },
   );
 
-  runApp(const CCenterApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => ContentProvider()),
+      ],
+      child: const CCenterApp(),
+    ),
+  );
 }
 
 class CCenterApp extends StatelessWidget {
@@ -46,6 +66,7 @@ class CCenterApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MacosApp(
       title: 'CCenter',
+      debugShowCheckedModeBanner: false,
       theme: MacosThemeData.light(),
       darkTheme: MacosThemeData.dark(),
       themeMode: ThemeMode.system,
@@ -62,6 +83,8 @@ class CCenterHomePage extends StatefulWidget {
 }
 
 class _CCenterHomePageState extends State<CCenterHomePage> {
+  int _selectedViewIndex = 0;
+
   final SystemTray _systemTray = SystemTray();
 
   @override
@@ -105,13 +128,11 @@ class _CCenterHomePageState extends State<CCenterHomePage> {
         minWidth: 200,
         builder: (context, scrollController) {
           return SidebarItems(
-            currentIndex: 0,
-            onChanged: (i) {},
+            currentIndex: _selectedViewIndex,
+            onChanged: (index) {
+              setState(() => _selectedViewIndex = index);
+            },
             items: const [
-              SidebarItem(
-                leading: MacosIcon(CupertinoIcons.command),
-                label: Text('Command Center'),
-              ),
               SidebarItem(
                 leading: MacosIcon(CupertinoIcons.doc_text),
                 label: Text('Content'),
@@ -124,15 +145,9 @@ class _CCenterHomePageState extends State<CCenterHomePage> {
           );
         },
       ),
-      child: MacosScaffold(
-        toolBar: const ToolBar(title: Text('CCenter'), titleWidth: 150.0),
-        children: [
-          ContentArea(
-            builder: (context, scrollController) {
-              return const Center(child: Text('Welcome to CCenter'));
-            },
-          ),
-        ],
+      child: IndexedStack(
+        index: _selectedViewIndex,
+        children: const [ContentCaptureView(), SettingsView()],
       ),
     );
   }
