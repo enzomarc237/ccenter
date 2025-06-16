@@ -265,7 +265,7 @@ packages:
     source: hosted
     version: "2.1.10"
   macos_window_utils:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: macos_window_utils
       sha256: "4e683da162825018580c7341d9e926a6fa39a869a3504c2e5471618553bd55cd"

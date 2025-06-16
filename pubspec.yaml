@@ -46,7 +46,8 @@ dependencies:
   path_provider: ^2.1.2
   path: ^1.8.3
   provider: ^6.1.1
-  uuid: ^3.0.6
+  uuid: ^3.0.7
+  macos_window_utils: ^1.4.0
 
 dev_dependencies:
   flutter_test:
